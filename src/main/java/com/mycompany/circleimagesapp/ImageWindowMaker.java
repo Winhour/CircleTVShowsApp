@@ -136,6 +136,8 @@ public class ImageWindowMaker {
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
         int minute = rightNow.get(Calendar.MINUTE);
         
+        //comment out if necessary for testing purposes
+        
         currenthour = hour;
         currentminute = minute;
         
@@ -152,6 +154,8 @@ public class ImageWindowMaker {
             nextminute = nextminute - 60;
             nexthour++;
         }
+        
+        //comment out if necessary for testing purposes
         
         System.out.println("Starting time: " + currenthour + "  " + currentminute);
             
