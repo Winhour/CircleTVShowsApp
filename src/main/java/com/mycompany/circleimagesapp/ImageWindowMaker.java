@@ -6,8 +6,11 @@
 package com.mycompany.circleimagesapp;
 
 import com.mycompany.circleimagesapp.models.ImageModel;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -25,16 +28,20 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JWindow;
 import javax.swing.Timer;
@@ -74,7 +81,25 @@ public class ImageWindowMaker {
     int rh = 390;
     int rw = 600;
     double d = 1.57079633;
- 
+    
+    
+    int largerradiush = 390;
+    int largerradiusw = 600;
+    
+    int smallerradiush = 330;
+    int smallerradiusw = 500;
+    
+    int centerwindowwidth = 726;
+    int centerwindowheight = 484;
+    
+    int imagewindowheight = 160;
+    int imagewindowwidth = (int)(imagewindowheight * 1.7);
+
+    int popupwindowheight = 845;
+    int popupwindowwidth = 1370;
+    int popupmodifiedwidth = popupwindowwidth - 30;
+    int popupmodifiedheight = (int)((popupwindowwidth-30)/1.7);
+            
     
     List<ImageModel> imagemodellist = new ArrayList<>();
     List<ImageModel> currentmodellist = new ArrayList<>();
@@ -83,7 +108,7 @@ public class ImageWindowMaker {
     ImageModel imagemodel;
     int currentelement = 0;
     
-    Timer timer = new Timer(300000, new ActionListener() {                       /* 300000 for 5 minutes */
+    Timer timer = new Timer(10000, new ActionListener() {                       /* 300000 for 5 minutes, set to something way smaller for testing */
         @Override
         public void actionPerformed(ActionEvent e) {
             
@@ -115,16 +140,14 @@ public class ImageWindowMaker {
     
     public void run(){
         
-        int xw = 726;
-        int xy = 484;
         
-        windowcenter.setSize(xw,xy);
+        windowcenter.setSize(centerwindowwidth,centerwindowheight);
         windowcenter.setLayout(null);
-        windowcenter.setLocation(Cx-(xw/2),Cy-(xy/2));
+        windowcenter.setLocation(Cx-(centerwindowwidth/2),Cy-(centerwindowheight/2));
         windowcenter.getContentPane().setBackground(Color.GRAY);
         windowcenter.setVisible(false);
         
-        ja.setBounds(5,5,xw-10,xy-10);
+        ja.setBounds(5,5,centerwindowwidth-10,centerwindowheight-10);
         ja.setBackground(Color.BLACK);
         ja.setForeground(Color.WHITE);
         
@@ -137,7 +160,7 @@ public class ImageWindowMaker {
         int minute = rightNow.get(Calendar.MINUTE);
         
         //comment out if necessary for testing purposes
-        
+        /*
         currenthour = hour;
         currentminute = minute;
         
@@ -154,7 +177,7 @@ public class ImageWindowMaker {
             nextminute = nextminute - 60;
             nexthour++;
         }
-        
+        */
         //comment out if necessary for testing purposes
         
         System.out.println("Starting time: " + currenthour + "  " + currentminute);
@@ -182,14 +205,10 @@ public class ImageWindowMaker {
      private void makeImageWindow(double[] coordinates, List<JWindow> jwindowlist, ImageModel imagemodel) throws IOException{
          
        //System.out.println(imagepath);
-       
-       
-       int xy = 160;
-       int xw = (int)(xy * 1.7);
          
         BufferedImage bi_e = ImageIO.read(new File(System.getProperty("user.dir")+"/10_PRZDANE/"+imagemodel.getImagepath()));
         
-        Image bi = bi_e.getScaledInstance(xw, xy, Image.SCALE_SMOOTH);
+        Image bi = bi_e.getScaledInstance(imagewindowwidth, imagewindowheight, Image.SCALE_SMOOTH);
          
         JWindow window = new JWindow(){
 
@@ -205,32 +224,37 @@ public class ImageWindowMaker {
         
         window.setBackground(Color.orange);
         
-        window.setSize(xw,xy);
+        window.setSize(imagewindowwidth,imagewindowheight);
         //window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //window.getContentPane().setBackground(Color.BLUE);
         window.setLayout(null);
         //window.setUndecorated(true);
-        window.setLocation((int)coordinates[0]-(xw/2), (int)coordinates[1]-(xy/2));
+        window.setLocation((int)coordinates[0]-(imagewindowwidth/2), (int)coordinates[1]-(imagewindowheight/2));
         
         JPopupMenu popMenu = new JPopupMenu();
         
         
-        JMenuItem menuItem[] = new JMenuItem[3];
+        JMenuItem menuItem[] = new JMenuItem[5];
         
         ShowAction a = new ShowAction(imagemodel.getImagepath(),window);
         ForumAction f = new ForumAction(imagemodel.getForumpath(),window);
         UrlAction u = new UrlAction(imagemodel.getUrl(),window);
+        SettingsAction s = new SettingsAction(imagemodel.getUrl(),window);
         
         menuItem[0] = new JMenuItem("Show");
         //menuItem[0].addActionListener(clickChoiceHandler);
        // menuItem[0].setActionCommand("show_command");
         menuItem[0].setAction(a);
+        menuItem[0].setFont(new Font("Arial Black", Font.PLAIN, 16));
+        menuItem[0].setSize(new Dimension(100, menuItem[0].getPreferredSize().height));
         popMenu.add(menuItem[0]);
         
         menuItem[1] = new JMenuItem("Forum");
         //menuItem[1].addActionListener(clickChoiceHandler);
         //menuItem[1].setActionCommand("forum_command");
         menuItem[1].setAction(f);
+        menuItem[1].setFont(new Font("Arial Black", Font.PLAIN, 16));
+        menuItem[1].setSize(new Dimension(100, menuItem[1].getPreferredSize().height));
         popMenu.add(menuItem[1]);
         
         
@@ -238,7 +262,23 @@ public class ImageWindowMaker {
         //menuItem[2].addActionListener(clickChoiceHandler);
         //menuItem[2].setActionCommand("url_command");
         menuItem[2].setAction(u);
+        menuItem[2].setFont(new Font("Arial Black", Font.PLAIN, 16));
+        menuItem[2].setSize(new Dimension(100, menuItem[2].getPreferredSize().height));
         popMenu.add(menuItem[2]);
+        
+        
+        menuItem[3] = new JMenuItem("");
+        menuItem[3].setFont(new Font("Arial Black", Font.PLAIN, 16));
+        menuItem[3].setSize(new Dimension(100, menuItem[3].getPreferredSize().height));
+        popMenu.add(menuItem[3]);
+        
+        
+        menuItem[4] = new JMenuItem("Settings");
+        menuItem[4].setAction(s);
+        menuItem[4].setFont(new Font("Arial Black", Font.PLAIN, 16));
+        menuItem[4].setSize(new Dimension(100, menuItem[4].getPreferredSize().height));
+        popMenu.add(menuItem[4]);
+        
         
         bi_e = null;
         
@@ -256,7 +296,7 @@ public class ImageWindowMaker {
                 
                 //ja = new JLabel();
                 
-                ja.setBounds(5,5,716,474);
+                ja.setBounds(5,5,centerwindowwidth-10,centerwindowheight-10);
                 ja.setBackground(Color.BLACK);
                 ja.setForeground(Color.WHITE);
                 
@@ -267,7 +307,7 @@ public class ImageWindowMaker {
                     Logger.getLogger(ImageWindowMaker.class.getName()).log(Level.SEVERE, null, ex);
                 }
         
-                Image bi2 = bi_x.getScaledInstance(716, 474, Image.SCALE_SMOOTH);
+                Image bi2 = bi_x.getScaledInstance(centerwindowwidth-10,centerwindowheight-10, Image.SCALE_SMOOTH);
                 
                 ImageIcon bi_exit = new ImageIcon(bi2);
 
@@ -308,16 +348,16 @@ public class ImageWindowMaker {
                         Logger.getLogger(ImageWindowMaker.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-                    Image bi2 = bi_x.getScaledInstance(1340, 792, Image.SCALE_SMOOTH);
+                    Image bi2 = bi_x.getScaledInstance(popupmodifiedwidth, popupmodifiedheight, Image.SCALE_SMOOTH);
 
                     ImageIcon bi_exit = new ImageIcon(bi2);
 
-                    jl.setBounds(5,5,1340,792);
+                    jl.setBounds(5,5,popupmodifiedwidth, popupmodifiedheight);
                     jl.setBackground(Color.BLACK);
                     jl.setForeground(Color.WHITE);
                     jl.setIcon(bi_exit);
                     
-                    popupwindow.setSize(1370,845);
+                    popupwindow.setSize(popupwindowwidth,popupwindowheight);
                     popupwindow.setLayout(null);
                     popupwindow.setLocation(400,200);
 
@@ -342,31 +382,33 @@ public class ImageWindowMaker {
         //window.toBack();
         
         jwindowlist.add(window);
+        
+        a = null;
+        f = null;
+        u = null;
+        s = null;
 
          
      }
      
      
-     private void makeNoTVShowsWindow(){
-         
-        int xy = 160;
-        int xw = (int)(xy * 1.7);
+     private void makeNoTVShowsWindow(){  
 
         JWindow window = new JWindow();
 
-        window.setSize(xw,xy);
+        window.setSize(imagewindowwidth,imagewindowheight);
         //window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //window.getContentPane().setBackground(Color.BLUE);
         window.setLayout(null);
         //window.setUndecorated(true);
-        window.setLocation(Cx-(xw/2), Cy-rh-(xy/2));
+        window.setLocation(Cx-(imagewindowwidth/2), Cy-rh-(imagewindowheight/2));
         window.setBackground(Color.orange);
         
         System.out.println("No current TV shows");
 
         JTextArea jm = new JTextArea();
 
-        jm.setBounds(5,5,xw-10,xy-10);
+        jm.setBounds(5,5,imagewindowwidth-10,imagewindowheight-10);
         jm.setBackground(Color.BLACK);
         jm.setForeground(Color.WHITE);
         jm.setFont(new Font("Book Antiqua", Font.PLAIN, 16));
@@ -478,13 +520,13 @@ public class ImageWindowMaker {
             
             if(i > 4){
                 
-                rh = 390;
-                rw = 600;
+                rh = largerradiush;
+                rw = largerradiusw;
                 
             } else {
                 
-                rh = 330;
-                rw = 500;
+                rh = smallerradiush;
+                rw = smallerradiusw;
                 
             }
             
@@ -606,6 +648,8 @@ public class ImageWindowMaker {
     }
     
 }
+
+/* TODO: Pass the window sizes to actions as arguments */
 
 class ShowAction extends AbstractAction {
     
@@ -737,6 +781,89 @@ class UrlAction extends AbstractAction {
         //window.setVisible(false);
         //window.setVisible(true);
         window.repaint();
+        
+    }
+}
+
+class SettingsAction extends AbstractAction {
+    
+    String url;
+    JWindow window;
+    
+    JFrame popupwindow = new JFrame();
+    TestJFrame testframe = new TestJFrame();
+    
+    public SettingsAction(String url, JWindow window) {
+        super("Settings");
+        this.url = url;
+        this.window = window;
+    }
+    public void actionPerformed(ActionEvent e) {
+        
+        
+        /*
+        JPanel panel = new JPanel();
+        JPanel panel2 = new JPanel();
+        JPanel panel3 = new JPanel();
+        
+        JSlider widthSlider = new JSlider(JSlider.VERTICAL,
+                                      0, 100, 50);
+        widthSlider.setMajorTickSpacing(25);
+        widthSlider.setMinorTickSpacing(5);
+        widthSlider.setPaintTicks(true);
+        widthSlider.setPaintLabels(true);
+        
+        Hashtable position = new Hashtable();
+        position.put(0, new JLabel("0"));
+        position.put(25, new JLabel("25"));
+        position.put(50, new JLabel("50"));
+        position.put(75, new JLabel("75"));
+        position.put(100, new JLabel("100"));
+         
+        // Set the label to be drawn
+        widthSlider.setLabelTable(position);
+        
+        JSlider widthSlider2 = new JSlider(JSlider.VERTICAL,
+                                      0, 100, 50);
+        widthSlider2.setMajorTickSpacing(25);
+        widthSlider2.setMinorTickSpacing(5);
+        widthSlider2.setPaintTicks(true);
+        widthSlider2.setPaintLabels(true);
+         
+        // Set the label to be drawn
+        widthSlider2.setLabelTable(position);
+        
+        
+        panel.add(widthSlider);
+        panel2.add(widthSlider2);
+        panel3.add(widthSlider);
+        
+        popupwindow.setBackground(Color.GRAY);
+        popupwindow.setSize(1370,845);
+        popupwindow.setLayout(new FlowLayout());
+        popupwindow.setLocation(400,200);
+
+        
+        
+        //panel.setLocation(200,200);
+        popupwindow.add(panel);
+        popupwindow.add(panel2);
+        popupwindow.add(panel3);
+        
+        
+        popupwindow.setVisible(true);
+        popupwindow.toFront();*/
+        
+        testframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        testframe.setVisible(true);
+        testframe.toFront();
+        
+        System.out.println("My test: " + testframe.getTestint());
+        
+        window.repaint();
+        
+        //System.out.println("Value of test_trick " + test_trick);
         
     }
 }
